@@ -1,0 +1,20 @@
+{
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": [
+        "${workspaceFolder}",
+        "/Users/tadiwa/Documents/Codex/2026-10-21/can-t-complete-intellisense-yet-because/outputs/TivaWare_C_Series-2.2.0.295"
+      ],
+      "defines": [
+        "PART_TM4C123GH6PM",
+        "ccs=\"ccs\""
+      ],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "c99",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-arm64"
+    }
+  ],
+  "version": 4
+}
