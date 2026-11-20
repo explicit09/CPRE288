@@ -1,0 +1,32 @@
+#include "Timer.h"
+#include "servo.h"
+#include <inc/tm4c123gh6pm.h>
+void servo_init(void){
+    SYSCTL_RCGCGPIO_R |= 0x02; // enables port b
+    timer_waitMillis(1000);
+    SYSCTL_RCGCTIMER_R |= 0x02; //enables timer clock
+    timer_waitMillis(1000);
+    TIMER1_CTL_R &= 0xEFF;
+    GPIO_PORTB_DEN_R |= 0x20; //enables pbwire 5
+    GPIO_PORTB_DIR_R |= 0x20; //sets wire 5 to output
+    GPIO_PORTB_AFSEL_R |= 0x20; //disables wire 5 afsel
+    GPIO_PORTB_PCTL_R &= 0xFF0FFFFF;
+    GPIO_PORTB_PCTL_R |= 0x00700000;
+
+
+    //disables timer1
+        TIMER1_CFG_R |= 0x4; //sets 16 bit timer
+        //TIMER1_CFG_R &= 0xC;
+        TIMER1_TBMR_R &= 0xA;
+        TIMER1_TBMR_R |= 0xA;
+        //TIMER1_TBMR_R |= 0x200;
+        TIMER1_TBPR_R = 0x04;
+        TIMER1_TBILR_R =0xE200;
+        //TIMER1_TBMATCH_R = 0x46500;
+        TIMER1_CTL_R |= 0xD00;
+}
+void servo_move(void){
+    TIMER1_TBPMR_R = 0x04;
+    TIMER1_TBMATCHR_R = 0xA380;
+
+}

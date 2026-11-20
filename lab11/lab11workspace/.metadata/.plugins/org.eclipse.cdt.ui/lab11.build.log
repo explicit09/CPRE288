@@ -1,0 +1,43 @@
+
+**** Build of configuration Debug for project lab11 ****
+
+"C:\\ti\\ccs1271\\ccs\\utils\\bin\\gmake" -k -j 20 all -O 
+ 
+Building file: "../main.c"
+Invoking: Arm Compiler
+"C:/ti/ccs1271/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path="U:/CPRE288/lab11/lab11project" --include_path="C:/ti/TivaWare_C_Series-2.2.0.295" --include_path="C:/ti/ccs1271/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include" --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi --preproc_with_compile --preproc_dependency="main.d_raw"  "../main.c"
+"../main.c", line 64: warning #179-D: variable "insideObject" was declared but never referenced
+"../main.c", line 65: warning #179-D: variable "count" was declared but never referenced
+"../main.c", line 66: warning #179-D: variable "objectNum" was declared but never referenced
+"../main.c", line 67: warning #179-D: variable "z" was declared but never referenced
+"../main.c", line 68: warning #179-D: variable "smallestObjectNumber" was declared but never referenced
+"../main.c", line 69: warning #179-D: variable "temp" was declared but never referenced
+"../main.c", line 70: warning #179-D: variable "margin_ofError" was declared but never referenced
+"../main.c", line 71: warning #179-D: variable "dist" was declared but never referenced
+"../main.c", line 149: warning #179-D: variable "sum" was declared but never referenced
+"../main.c", line 150: warning #179-D: variable "average" was declared but never referenced
+"../main.c", line 152: warning #179-D: variable "count" was declared but never referenced
+"../main.c", line 154: warning #179-D: variable "z" was declared but never referenced
+"../main.c", line 156: warning #552-D: variable "temp" was set but never used
+"../main.c", line 157: warning #179-D: variable "margin_ofError" was declared but never referenced
+"../main.c", line 158: warning #179-D: variable "dist" was declared but never referenced
+"../main.c", line 475: warning #112-D: statement is unreachable
+"../main.c", line 475: warning #121-D: return value type does not match the function type
+"../main.c", line 282: warning #179-D: variable "i" was declared but never referenced
+"../main.c", line 284: warning #179-D: variable "sum" was declared but never referenced
+"../main.c", line 285: warning #179-D: variable "average" was declared but never referenced
+"../main.c", line 286: warning #179-D: variable "insideObject" was declared but never referenced
+"../main.c", line 287: warning #179-D: variable "count" was declared but never referenced
+"../main.c", line 288: warning #179-D: variable "objectNum" was declared but never referenced
+"../main.c", line 291: warning #179-D: variable "temp" was declared but never referenced
+"../main.c", line 292: warning #179-D: variable "margin_ofError" was declared but never referenced
+Finished building: "../main.c"
+ 
+Building target: "lab11.out"
+Invoking: Arm Linker
+"C:/ti/ccs1271/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi -z -m"lab11.map" --heap_size=1024 --stack_size=2048 -i"C:/ti/ccs1271/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/lib" -i"C:/ti/ccs1271/ccs/tools/compiler/ti-cgt-arm_20.2.7.LTS/include" --reread_libs --diag_wrap=off --display_error_number --warn_sections --xml_link_info="lab11_linkInfo.xml" --rom_model -o "lab11.out" "./ADC.obj" "./Timer.obj" "./button.obj" "./lcd.obj" "./main.obj" "./movement.obj" "./open_interface.obj" "./ping.obj" "./servo.obj" "./tm4c123gh6pm_startup_ccs.obj" "./uart.obj" "../tm4c123gh6pm.cmd"  -llibc.a -l"C:/ti/TivaWare_C_Series-2.2.0.295/driverlib/ccs/Debug/driverlib.lib" 
+<Linking>
+Finished building target: "lab11.out"
+ 
+
+**** Build Finished ****

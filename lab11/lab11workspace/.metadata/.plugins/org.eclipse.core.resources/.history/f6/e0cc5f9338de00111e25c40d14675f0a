@@ -1,0 +1,399 @@
+/**
+ * lab7_template_extra_help.c
+ *
+ * Description: This is file is meant for those that would like a little
+ *              extra help with formatting their code.
+ *
+ */
+
+#define _PART1 0
+#define _PART2 0
+#define _PART3 0
+
+#include "Timer.h"
+#include "lcd.h"
+#include "uart.h"
+//#include "cyBot_Scan.h"
+#include "open_interface.h"
+#include "movement.h"
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include "ADC.h"
+#include "servo.h"
+#include "ping.h"
+
+// Adding global volatile varibles for communcating between
+// your Interupt Service Routine, and your non-interupt code.
+volatile  char uart_data;  // Your UART interupt code can place read data here
+volatile  char flag;       // Your UART interupt can update this flag
+                           // to indicate that it has placed new data
+                           // in uart_data
+char buffer[21];
+int count = 0;
+char data;
+float sensor_data_array[100]; //array that contains noiser distance
+float outlier_data_array[100];
+char msg[100]; //temp array to put a message to be printed
+float ping_array[100];
+
+
+
+
+typedef struct{
+    int angle;
+    int number;
+    float width;
+    float distance;
+    int angularWidth;
+    int angleStart;
+    int angleEnd;
+} objects; //creates a class called object with values for angle, number, width, and distance
+objects objects1[10];
+
+float IR_toDist(int IR_Val){
+    float x = 171713.0508 * pow(IR_Val, -1.2177);
+    return x;
+}
+
+void outlier(void){
+    int i;
+    sprintf(msg, "\r\nAngle\tDistance");
+    //uart_sendStr(msg);
+
+
+for(i = 0; i <91; i++){
+    outlier_data_array[i] = sensor_data_array[i];
+    /*if(i != 0 && i != 90 && ((sensor_data_array[i] - sensor_data_array[i-1]) > 20.0) &&  ((sensor_data_array[i] - sensor_data_array[i+1]) > 20.0)){
+        outlier_data_array[i] = (sensor_data_array[i-1] + sensor_data_array[i+1])/2.0;
+
+}
+else if(i == 0){
+   if(fabs(sensor_data_array[i] - sensor_data_array[i+1]) > 20.0){
+    outlier_data_array[i] = ( sensor_data_array[i+1] + sensor_data_array[i])/2.0;
+   }
+}
+ else if(i == 90){
+   if(fabs(sensor_data_array[i] - sensor_data_array[i-1]) > 20.0){
+    outlier_data_array[i] = ( sensor_data_array[i-1] + sensor_data_array[i])/2.0;
+}
+ }*/
+    sprintf(msg, "\r\n%d\t    %.1f\t%.1f", i * 2, outlier_data_array[i], ping_array[i]);
+    uart_sendStr(msg);  //prints out the angle and distance per IR value
+}
+}
+//cyBOT_Scan_t scan;
+int getSmallObject(){
+    int i;
+      int j;
+      float sum = 0;
+     float average;
+      int insideObject = 0;
+      int count = 0;
+      int objectNum = 0;
+      int z;
+      int smallestObjectNumber = 0;
+      int temp;
+      int margin_ofError;
+      float dist;
+    for(i = 0; i < 91; i++){
+        for(j = 0; j<3; j++){
+            TIMER1_TBMATCHR_R = 0xBBFF;
+
+
+
+                       servo_move(i*2);//scans straight ahead
+                       int value=  ADC_read();
+
+                         dist = IR_toDist(value);
+                         if(dist < 0){
+                             dist = dist * -1;
+                         }
+                         sum += dist;
+        }
+
+              ping_array[i] = getDistance();
+              average = sum / 3.0;
+
+
+
+
+              sensor_data_array[i] = IR_toDist(average);
+              sum = 0;
+      }
+          outlier();
+          for(i = 1; i < 91; i++){
+              if((fabs(outlier_data_array[i]- outlier_data_array[i-1]) > 15.0) && insideObject) {//checks to see if we are out of an object
+                         objects1[objectNum].angleEnd = (i-1)*2;
+                         if((objects1[objectNum].angleEnd - objects1[objectNum].angleStart) >= 2){
+                          //objects1[objectNum].angleEnd= i-1;
+                         //count++;
+                          objects1[objectNum].distance = outlier_data_array[i-2];
+                         objects1[objectNum].angularWidth = objects1[objectNum].angleEnd-objects1[objectNum].angleStart;
+                         temp = objects1[objectNum].angularWidth;
+
+                         objects1[objectNum].width =  2 *  objects1[objectNum].distance * sin( (objects1[objectNum].angularWidth * 3.14159265 / 180)/2);
+                         objects1[objectNum].distance = outlier_data_array[i-1] - 3.0;
+                         //objects1[objectNum].angularWidth = 2* asin(objects1[objectNum].width / (2* ( objects1[objectNum].distance)));
+                         //margin_ofError = (objects1[objectNum].angularWidth - temp)/2;
+                         //objects1[objectNum].angleStart = objects1[objectNum].angleStart + margin_ofError;
+                         //objects1[objectNum].angleEnd = objects1[objectNum].angleEnd - margin_ofError;
+                         objects1[objectNum].angle = (objects1[objectNum].angleStart + objects1[objectNum].angleEnd)/2;
+
+
+                         //sets the object's distance to the current distance which wil be canceled out if the object is not more than 10 degrees wide
+                           //sets the object's distance to the current angle which wil be canceled out if the object is not more than 10 degrees wide
+                         objectNum++;
+                         insideObject = 0;
+                         }
+                         insideObject = 0;
+              }
+             if(!insideObject &&( ((outlier_data_array[i] - outlier_data_array[i-1] )) < -15.0) && outlier_data_array[i] < 80){ //checks to see if we are in an object and will not count anything beyond 80 cm as an object
+             objects1[objectNum].number = objectNum + 1;
+             objects1[objectNum].angleStart = i * 2;
+
+             insideObject = 1;
+             //count = 0;
+             }
+
+
+
+
+          }
+
+
+          sprintf(msg, "\nObjects:\r\n");
+          uart_sendStr(msg);
+         sprintf(msg, "Number: %d\tAngle: %d\t Distance: %.1f\t Width: %.1f\r\n", objects1[0].number, objects1[0].angle, objects1[0].distance, objects1[0].width);
+          uart_sendStr(msg);
+          for(i =0; i< objectNum; i++){
+              sprintf(msg, "Number: %d\tAngle: %d\t Distance: %.1f\t Width: %.1f\r\n", objects1[i].number, objects1[i].angle, objects1[i].distance, objects1[i].width);
+          uart_sendStr(msg);
+          }
+          for(i = 0; i < objectNum; i++){
+          if(objects1[i].width <= objects1[smallestObjectNumber].width){ //decides what smallest object is
+          smallestObjectNumber = i;
+          sprintf(msg, "Number: %d\tAngle: %d\t Distance: %.1f\t Width: %.1f\r\n", objects1[i].number, objects1[i].angle, objects1[i].distance, objects1[i].width);
+          //uart_sendStr(msg);
+          }
+
+          }
+    /*    for(i = 0; i < objectNum; i++){
+             cyBOT_Scan(objects1[i].angle, &scan);
+              sprintf(msg, "%d\t%.1f\r\n", objects1[i].angle, scan.sound_dist);
+              uart_sendStr(msg);
+          }*/
+          sprintf(msg,"\nSmallest Object:\r\n");
+          uart_sendStr(msg);
+          sprintf(msg, "\r\nAngle: %d(start), %d(center), %d end,\r\nDistance: %.1f",objects1[smallestObjectNumber].angleStart, objects1[smallestObjectNumber].angle, objects1[smallestObjectNumber].angleEnd, objects1[smallestObjectNumber].distance);
+          uart_sendStr(msg); //prints the smallest objects angle and distance
+          //cyBOT_Scan(objects1[smallestObjectNumber].angle, &scan);
+          TIMER1_TBMATCHR_R = 0xBBFF;
+          servo_move(objects1[smallestObjectNumber].angle);
+          return smallestObjectNumber;
+
+}
+
+
+void main()
+
+{
+    ADCinit();
+
+  timer_init();
+  lcd_init();
+  uart_init(115200);
+  oi_t *sensor_data = oi_alloc();
+  oi_init(sensor_data);
+  oi_update(sensor_data);
+  ping_init();
+  servo_init();
+ // cyBOT_init_Scan(0b0111); //enables IR and Ping
+
+  int i;
+  int j = 0;
+  int sum = 0;
+  double average;
+  int insideObject = 0;
+  int count = 0;
+  int objectNum = 0;
+  int z;
+  int smallestObjectNumber = 0;
+  int temp;
+  int margin_ofError;
+ // right_calibration_value = 274750;
+      //  left_calibration_value = 1235500;
+         int mode = 0; // 0 for manual and 1 for autonomous
+         int planReady;
+         char* plannedTurn = "none";
+         int planned_turnDegrees;
+         int plannedDistance;
+ // objects objects1[10];
+
+
+  while(1){
+
+  uart_data = uart_receive(); //data gets the current output
+  uart_sendChar(uart_data);
+  if(uart_data == 'r'){ //sends into a messaging mode
+      while(1){
+          uart_data = uart_receive();
+          uart_sendChar(uart_data);
+          if(uart_data == '7'){ //gets out of the current sending data mode
+          break;
+          }
+          else if(uart_data == '\r'){ //creates a new line if enter is pressed
+              sprintf(msg, "\r\n");
+              uart_sendStr(msg);
+          }
+          }
+
+  }
+
+  else if(uart_data == 'm'){ //scans once m is pressed
+  smallestObjectNumber = getSmallObject();
+  mode = 0;
+  }
+
+
+  else if(uart_data == 't'){
+      if(mode == 0){
+          mode = 1;
+          uart_sendStr("AUTONOMOUS MODE");
+          uart_sendStr("press h to continue");
+          planReady = 0;
+      }else if(mode == 1){
+          mode = 0;
+          uart_sendStr("MANUAL MODE");
+      }
+  }
+  else if(uart_data == 'h'){
+      if(mode == 0){
+      mode = 1;
+      uart_sendStr("Autonomous mode");
+      planReady = 0;
+  }
+  }
+
+
+
+
+if(mode == 0){
+    uart_sendStr("press m to scan\n");
+    if(uart_data == 'm'){
+        smallestObjectNumber = getSmallObject();
+    }
+    else if (uart_data == 'w'){ // it shall move once w is pressed forwards by 5 cm
+                 move_forward(sensor_data, 50);
+             }
+                    else if(uart_data == 's'){
+                        move_backwards(sensor_data, 50);
+                    }
+                    else if(uart_data == 'a'){ //i made it 4 because it kept overturning. treat this as 5 degrees
+                        turn_anticlockwise(sensor_data, 4);
+
+                    }
+                    else if(uart_data == 'd'){
+                        turn_clockwise(sensor_data, 4);
+
+                    }
+                    else if (uart_data == 'x'){
+                        oi_free(sensor_data);
+                    }
+
+
+
+}
+else if(mode == 1){
+    if(uart_data == 'h'){
+    if(planReady == 0){
+
+             smallestObjectNumber = getSmallObject();
+
+
+
+
+             //Drive autonomously(in theory) to the smallest object
+
+
+             j = objects1[smallestObjectNumber].angle;
+             z = (int)objects1[smallestObjectNumber].distance;
+
+
+             if(j < 90){
+                 plannedTurn = "Right";
+                 planned_turnDegrees = 90 - j;
+
+             }else if(j > 90){
+                 plannedTurn = "Left";
+                 planned_turnDegrees = j - 90;
+
+             }else if ( j == 90){
+                 plannedTurn = "No turn";
+                 planned_turnDegrees = 0;
+
+             }
+
+             if(z <= 15){
+                 plannedTurn = "none";
+                 planned_turnDegrees = 0;
+                 plannedDistance = 0;
+                 move_forward(sensor_data, 50);
+                 uart_sendStr("Target Reached");
+
+                planReady = 0;
+             }else{
+                 if(z > 20){
+                     plannedDistance = 100;
+                 }else{
+                     plannedDistance = (z - 7)*10;
+                 }
+             }
+             sprintf(msg,"Planned Turn : %s, Planned Distance : %d, Turn Degrees = %d\r\n",plannedTurn, plannedDistance, planned_turnDegrees);
+             uart_sendStr(msg);
+             uart_sendStr("press h to execute plan");
+             planReady = 1;
+
+
+         }else if(planReady == 1){
+             uart_sendStr("Executing plan");
+             if(strcmp(plannedTurn, "Left")== 0){
+                 turn_anticlockwise(sensor_data,planned_turnDegrees-6);
+             }else if(strcmp(plannedTurn,"Right")==0){
+                 turn_clockwise(sensor_data, planned_turnDegrees-6);
+             }
+             if(plannedDistance > 0){
+                 move_forward(sensor_data ,plannedDistance);
+
+
+             }
+             uart_sendStr("Movement Complete\r\n");
+             uart_sendStr("press h to continue");
+             planReady = 0;
+         }
+    }
+
+}
+}
+  return 0;
+}
+
+
+
+
+
+
+
+
+/*#if _PART2      // Echo Received Character
+    // TODO
+
+#endif
+
+#if _PART3 // Receive characters using interrupts.
+ // TODO
+
+#endif
+
+}*/
+

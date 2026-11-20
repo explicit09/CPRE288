@@ -1,0 +1,13 @@
+
+#include "servo.h"
+/**
+ * main.c
+ */
+int main(void)
+{
+	servo_init();
+	timer_init();
+
+	servo_move();
+
+}
