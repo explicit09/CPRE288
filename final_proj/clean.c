@@ -1,26 +1,10 @@
 #include "clean.h"
-#include "string.h"
-#include "functions.h"
 #include "stdio.h"
 #include "math.h"
-
-//int l = 0; // Index used to iterate through array of sensor data
-float x = 0;
-float y = 0;
-float z = 0;
-int window = 3;
-float itself = 0;
-float one = 0;
-float two = 0;
-
-float left = 0.0;
-float right = 0.0;
-
 
 void outlier_removal(float distance[])
 {
     int l = 0;
-    //added an if condition of when to modify distance[0]
     if(fabsf(distance[0] - distance[1]) >= 20
             && fabsf(distance[1] - distance[2]) < 20)
             {
@@ -29,25 +13,20 @@ void outlier_removal(float distance[])
     
     for (l = 1; l < 90; l++) 
     {
-        x = distance[l]; //we chenaged from sensor_data_array to dist !      
-        y = distance[l - 1];
-        z = distance[l + 1];
- 
-        //x - current
-        //y - previous
-        //z - next
+        float current = distance[l]; 
+        float previous = distance[l - 1];
+        float next = distance[l + 1];
 
-        if (((x - y >= 20) && (x - z >= 20))
-                || ((x - y <= -20) && (x - z <= -20)))
+        if (((current - previous >= 20) && (current - next >= 20))
+            || ((current - previous <= -20) && (current - next <= -20)))
         {
-            //distance[l] = (y + z)/2.0; //returned this, add previous value plus forward value
             //using max and min values
-            if (x > y)
+            if (current > previous)
             {
-                distance[l] = fmaxf(y,z);
+                distance[l] = fmaxf(previous,next);
             }
             else{
-                distance[l] = fminf(y,z);
+                distance[l] = fminf(previous,next);
             }
         }
     }
@@ -62,6 +41,9 @@ void outlier_removal(float distance[])
 
 void moving_average(float distance[])
 {
+    float window = 3.0;
+    float left = 0.0;
+    float right = 0.0;
     float temp[91];
     int l;
 
@@ -90,9 +72,8 @@ void moving_average(float distance[])
         if (fabsf(right - itself) >= 20)
             right = itself;
 
-        temp[l] = (left + itself + right) / 3.0f;
+        temp[l] = (left + itself + right) / window;
         distance[l] = temp[l];
     }
         
     }
-

@@ -1,8 +1,8 @@
-//#include "cyBot_uart.h"
 #include "uart.h"
 #include "string.h"
 #include "cyBot_Scan.h"
 #include "open_interface.h"
+
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
