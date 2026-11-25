@@ -1,10 +1,3 @@
-/*
- * movement.h
- *
- *  Created on: Sep 3, 2026
- *      Author: kausalya
- */
-
 #ifndef MOVEMENT_H_
 #define MOVEMENT_H_
 
