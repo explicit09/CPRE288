@@ -4,7 +4,7 @@
 
 cyBOT_Scan_t scan;
 
-void print_to_putty(char message[]) //same as before
+void print_to_putty(char message[]) 
 {
     int k;
     //uart_sendChar('\r');
