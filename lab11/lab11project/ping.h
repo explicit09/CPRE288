@@ -2,7 +2,6 @@
 #define PING_H_
 
 #include <inc/tm4c123gh6pm.h>
-#include "Timer.h"
 
 void ping_init(void);
 void send_pulse();
