@@ -1,8 +1,7 @@
 #include "functions.h"
 #include "stdio.h"
 #include "math.h"
-
-cyBOT_Scan_t scan;
+#include "servo.h"
 
 void print_to_putty(char message[]) 
 {
@@ -130,5 +129,5 @@ int find_smallest(dataa *data)
 
 void point_to_smallest_obj(int smallest_obj_angle)
 {
-    cyBOT_Scan(smallest_obj_angle, &scan);
+    servo_move(smallest_obj_angle);
 }

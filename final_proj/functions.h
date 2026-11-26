@@ -1,6 +1,5 @@
 #include "uart.h"
 #include "string.h"
-#include "cyBot_Scan.h"
 #include "open_interface.h"
 
 #ifndef FUNCTIONS_H
