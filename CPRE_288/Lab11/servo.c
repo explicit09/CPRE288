@@ -1,13 +1,7 @@
 #include "inc/tm4c123gh6pm.h"
-//#include "driverlib/interrupt.h" --->this is in a different library so no here in our code should we be using this
 #include "Timer.h"
 #include "servo.h"
 
-
-
-//similar to ping but instead of capturing the pulse width we are generating it
-//so skip the interrupts...?
-//setting up and using PWM
 volatile int M = 16000;
 
 
