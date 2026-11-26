@@ -52,7 +52,7 @@ static void add_object(float distance[], dataa *data, int first, int last)
     double d1 = distance[first];        // distance at the right edge == start index
     double d2 = distance[last];         // distance at the left edge == end index
     double closest = d1;                //closest dist from cybot to the obj
-    double span = (last - first + 1) * 2.0;   // we had 2 widths prev, so instead of doing that, we will be doing the same thing but with a diff variable name
+    double span = (last - first) * 2.0;   // we had 2 widths prev, so instead of doing that, we will be doing the same thing but with a diff variable name
     // still a bit iffy about adding 1, i keep confusing myself with it. Lmk what you guys feel.
     //my example was if the end index is 60 and start index if 50, end-start = 1o, but wont we have 11 indices that we should cover? (50,51,52,53,54,55,56,57,58,59,60)
     int j, n;
