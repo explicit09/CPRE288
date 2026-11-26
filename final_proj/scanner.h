@@ -1,5 +1,5 @@
 #pragma once
 
-void scan_IR_PING(void);
-void scan_PING(void);
-void scan_IR(void);
+void scan_ir_ping(void);
+void scan_ping(void);
+void scan_ir(void);

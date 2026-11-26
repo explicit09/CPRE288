@@ -11,22 +11,22 @@ const int GO_MM = 15;
 int clicked = 0;
 int degrees_to_turn = 0;
 int clockwise = 0;
-int small2 = 0;
+int second_scan_smallest_index = 0;
 int store_small_obect = 0;
 char title[50];
 
 void autonomous(oi_t *sensor_data)
 {
 
-    scan_IR_PING();
-    //print_scan("** Raw data **\n", estimate);
-    outlier_removal(estimate);
-    moving_average(estimate);
-    detect_object(estimate, dist, &impp);
-    print_scan("", dist);
+    scan_ir_ping();
+    //print_scan("** Raw data **\n", ir_distance_cm);
+    outlier_removal(ir_distance_cm);
+    moving_average(ir_distance_cm);
+    detect_objects(ir_distance_cm, ping_distance_cm, &detected_objects);
+    print_scan("", ping_distance_cm);
 //sprintf(title, "END");
     //      print_to_putty(title);
-    //print_objects(&impp);
+    //print_objects(&detected_objects);
 
 }
 
@@ -39,12 +39,12 @@ void auto_move(oi_t *sensor_data)
         clicked -= 2;
     }
 
-    small = find_smallest(&impp);
-    point_to_smallest_obj(impp.angle[small]);
-    clockwise = (impp.angle[small] < 90);
-    degrees_to_turn = 85 - impp.angle[small];
+    smallest_object_index = find_smallest(&detected_objects);
+    point_to_smallest_obj(detected_objects.angle[smallest_object_index]);
+    clockwise = (detected_objects.angle[smallest_object_index] < 90);
+    degrees_to_turn = 85 - detected_objects.angle[smallest_object_index];
     turn(sensor_data, fabs(degrees_to_turn), clockwise);
-    drive_mm(sensor_data, (impp.dect[small] - 12) * 10);
+    drive_mm(sensor_data, (detected_objects.distance_cm[smallest_object_index] - 12) * 10);
     uart_sendChar('f');
     uart_sendChar('\n');
 }
@@ -75,8 +75,8 @@ void manual_drive(oi_t *sensor_data, int letter)
     }
     else if (letter == 'c')
     {
-        clockwise = (impp.angle[small] < 90);
-        degrees_to_turn = 90 - impp.angle[small];
+        clockwise = (detected_objects.angle[smallest_object_index] < 90);
+        degrees_to_turn = 90 - detected_objects.angle[smallest_object_index];
         turn(sensor_data, fabs(degrees_to_turn), clockwise);
     }
     else if (letter == 'k')
@@ -91,24 +91,24 @@ void manual_drive(oi_t *sensor_data, int letter)
 
 void scan_360(oi_t *sensor_data)
 {
-    scan_IR_PING();
-    outlier_removal(estimate);
-    moving_average(estimate);
-    detect_object(estimate, dist, &impp);
-    small = find_smallest(&impp);
+    scan_ir_ping();
+    outlier_removal(ir_distance_cm);
+    moving_average(ir_distance_cm);
+    detect_objects(ir_distance_cm, ping_distance_cm, &detected_objects);
+    smallest_object_index = find_smallest(&detected_objects);
     turn(sensor_data, 180, 1);
-    scan_IR_PING();
-    outlier_removal(estimate);
-    moving_average(estimate);
-    detect_object(estimate, dist, &impp);
-    small2 = find_smallest(&impp);
+    scan_ir_ping();
+    outlier_removal(ir_distance_cm);
+    moving_average(ir_distance_cm);
+    detect_objects(ir_distance_cm, ping_distance_cm, &detected_objects);
+    second_scan_smallest_index = find_smallest(&detected_objects);
 
     /* the function has the following issues:
-     * 1. impp is updated during the second scan and at the moment we don't store more than
+     * 1. detected_objects is updated during the second scan and at the moment we don't store more than
      * 91 values since all scanning functions start at int i = 0; which is the index position
      * for the array to be updated
      *
-     * 2. comparing impp.angle[small] < impp.angle[small2] is invalid, as mentioned above
+     * 2. comparing detected_objects.angle[smallest_object_index] < detected_objects.angle[second_scan_smallest_index] is invalid, as mentioned above
      * immp has been updated already and has on,y the new objects.
      *
      * 3. Our point has to somehow understand that its more than 180 degrees and it might have
@@ -117,12 +117,12 @@ void scan_360(oi_t *sensor_data)
      * scanned first.
      */
 
-    if (impp.angle[small] < impp.angle[small2])
+    if (detected_objects.angle[smallest_object_index] < detected_objects.angle[second_scan_smallest_index])
     {
-        point_to_smallest_obj(small);
+        point_to_smallest_obj(smallest_object_index);
     }
     else
     {
-        point_to_smallest_obj(small2);
+        point_to_smallest_obj(second_scan_smallest_index);
     }
 }

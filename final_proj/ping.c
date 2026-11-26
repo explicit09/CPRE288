@@ -101,7 +101,7 @@ int ping_read(void) // Get distance from PING sensor
 
 // send out a pulse on PB3
 // missing details!!, see lab�s timing diagram
-float getDistance(void)
+float ping_get_distance_cm(void)
 {
     int clock_cycles;
     float distance;
@@ -110,7 +110,7 @@ float getDistance(void)
     return distance;
 }
 
-int getRolloverCount(void)
+int ping_get_rollover_count(void)
 {
     return rollover_count;
 }

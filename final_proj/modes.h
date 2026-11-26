@@ -4,12 +4,12 @@
 #include "adc.h"
 #include "uart.h"
 
-extern dataa impp;
-extern float estimate[91];
-extern float dist[91];
+extern object_data detected_objects;
+extern float ir_distance_cm[91];
+extern float ping_distance_cm[91];
 extern int clicked;
 extern int clockwise;
-extern int small;
+extern int smallest_object_index;
 extern int degrees_to_turn;
 
 void autonomous(oi_t *sensor_data);

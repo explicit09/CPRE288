@@ -5,21 +5,21 @@
 #include "math.h"
 #include "adc.h"
 
-extern float dist[91];
-extern int ir[91];
-extern float estimate[91];
+extern float ping_distance_cm[91];
+extern int ir_raw[91];
+extern float ir_distance_cm[91];
 const int degrees_to_scan = 180;
 int i = 0;
 int sum = 0;
 int avg = 0;
 
-void scan_IR_PING(void)
+void scan_ir_ping(void)
 {
     for (i = 0; i <= degrees_to_scan; i += 2)
     {
         servo_move(i);
         timer_waitMillis(50);
-        dist[i / 2] = getDistance();
+        ping_distance_cm[i / 2] = ping_get_distance_cm();
 
         sum = 0;
         for (avg = 0; avg < 3; avg++)
@@ -27,21 +27,21 @@ void scan_IR_PING(void)
             sum += adc_read();
         }
 
-        ir[i / 2] = sum / 3;
-        estimate[i / 2] = 50316.8052 * pow(ir[i / 2], -1.06489);
+        ir_raw[i / 2] = sum / 3;
+        ir_distance_cm[i / 2] = 50316.8052 * pow(ir_raw[i / 2], -1.06489);
     }
 }
-void scan_PING(void)
+void scan_ping(void)
 {
     for (i = 0; i <= degrees_to_scan; i += 2)
     {
         servo_move(i);
         timer_waitMillis(50);
-        dist[i / 2] = getDistance();
+        ping_distance_cm[i / 2] = ping_get_distance_cm();
     }
 }
 
-void scan_IR(void)
+void scan_ir(void)
 {
     for (i = 0; i <= degrees_to_scan; i += 2)
     {
@@ -54,7 +54,7 @@ void scan_IR(void)
             sum += adc_read();
         }
 
-        ir[i / 2] = sum / 3;
-        estimate[i / 2] = 50316.8052 * pow(ir[i / 2], -1.06489);
+        ir_raw[i / 2] = sum / 3;
+        ir_distance_cm[i / 2] = 50316.8052 * pow(ir_raw[i / 2], -1.06489);
     }
 }
